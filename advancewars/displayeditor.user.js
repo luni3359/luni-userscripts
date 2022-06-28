@@ -1,17 +1,19 @@
 // ==UserScript==
-// @name        AWBW: Display Editor
-// @description Customize the appearance of any CO
-// @version     1.6.0
-// @grant       GM.setValue
-// @grant       GM.getValue
-// @match       https://awbw.amarriner.com/*
-// @author      luni3359
-// @namespace   https://github.com/luni3359/
+// @name            AWBW: Display Editor
+// @description     Press K to edit the appearance of any CO
+// @version         1.7.0
+// @author          luni3359
 // @contributionURL https://ko-fi.com/luni3359
+// @match           https://awbw.amarriner.com/*
+// @grant           GM.setValue
+// @grant           GM.getValue
+// @namespace       https://github.com/luni3359/
+// @downloadURL     https://raw.githubusercontent.com/luni3359/luni-userscripts/master/advancewars/displayeditor.user.js
+// @updateURL       https://raw.githubusercontent.com/luni3359/luni-userscripts/master/advancewars/displayeditor.user.js
 // ==/UserScript==
 
 // == == == == == == == WARNING!! IMPORTANT!!! PLEASE READ!!!! == == == == == == == ==
-// Press O to open the display options. Don't forget to click "Save" to confirm your changes.
+// Press K to open the display options. Don't forget to click "Save" to confirm your changes.
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 
 const charIconRgx = /\/(?<status>gs_)*(?<size>small)*(?<game>aw2|ds)*(?<character>[a-zA-Z]+)\.png$/;
@@ -625,7 +627,7 @@ window.addEventListener("keydown", e => {
         return;
 
     switch (e.code) {
-        case "KeyO":
+        case "KeyK":
             optionKeyPressed = true;
             settings.toggleWindow();
             break;
@@ -637,7 +639,7 @@ window.addEventListener("keyup", e => {
         return;
 
     switch (e.code) {
-        case "KeyO":
+        case "KeyK":
             optionKeyPressed = false;
             break;
     }
