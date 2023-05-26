@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            AWBW: Display Editor
 // @description     Press K to edit the appearance of any CO
-// @version         1.7.0
+// @version         1.7.1
 // @author          luni3359
 // @contributionURL https://ko-fi.com/luni3359
 // @match           https://awbw.amarriner.com/*
@@ -16,7 +16,7 @@
 // Press K to open the display options. Don't forget to click "Save" to confirm your changes.
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 
-const charIconRgx = /\/(?<status>gs_)*(?<size>small)*(?<game>aw2|ds)*(?<character>[a-zA-Z]+)\.png$/;
+const charIconRgx = /\/(?<status>gs_)*(?<size>small)*(?<game>aw2|ds)*(?<character>[a-zA-Z]+)\.png(\?v=1)?$/;
 
 const coNames = [
     "andy", "hachi", "jake", "max", "nell", "rachel", "sami", "colin", "grit",
@@ -26,10 +26,9 @@ const coNames = [
 
 // Injects css to the page
 function addGlobalStyle(css) {
-    var head, style;
-    head = document.getElementsByTagName('head')[0];
+    const head = document.getElementsByTagName('head')[0];
     if (!head) { return; }
-    style = document.createElement('style');
+    const style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = css;
     head.appendChild(style);
