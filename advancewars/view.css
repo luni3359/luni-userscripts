@@ -1,0 +1,120 @@
+:root {
+    --settings-width: 300px;
+    --settings-margin: 14px;
+    --settings-hide-offset: calc(var(--settings-margin) * -1 + var(--settings-width) * -1);
+}
+
+#editor-settings {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 99999;
+    height: 465px;
+    width: var(--settings-width);
+    margin: 11px var(--settings-margin) 0 0;
+    transition-property: left, right, box-shadow;
+    transition-duration: 0.25s;
+    background-color: #FFF;
+    box-shadow: 2px 2px 4px 4px rgba(0, 0, 0, 0.2);
+}
+
+#editor-settings>.wrapper {
+    position: relative;
+    padding: 1px;
+    height: calc(100% - 3px);
+    width: calc(100% - 3px);
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000330;
+}
+
+#editor-settings.hidden {
+    right: var(--settings-hide-offset);
+    box-shadow: unset;
+}
+
+#editor-title {
+    pointer-events: none;
+    padding: 1px 6px;
+    margin-bottom: 1px;
+    background-color: #0066CC;
+    color: #FFF;
+    font-weight: bold;
+}
+
+#editor-settings .header {
+    pointer-events: none;
+    padding-left: 8px;
+    background-color: #AAAAAA;
+    border-style: solid;
+    border-width: 0 0 2px 0;
+    border-color: #000;
+    color: #666666;
+    font-weight: bold;
+}
+
+#co-category {
+    height: 413px;
+}
+
+#co-category>.wrapper {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+#co-table {
+    display: table;
+    height: 413px;
+    width: 100%;
+}
+
+.co-row {
+    display: table-row;
+}
+
+.co-cell {
+    display: table-cell;
+    padding: 2px;
+    vertical-align: middle;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: black;
+}
+
+.base-co-icon {
+    display: block;
+    pointer-events: none;
+    border: 1px solid black;
+    height: 32px;
+    width: 32px;
+}
+
+.co-defeat {
+    background-color: #FFF;
+    filter: brightness(80%);
+}
+
+input[type="text"] {
+    display: block;
+    width: 65px;
+}
+
+input[placeholder$="URL"] {
+    width: 65px;
+}
+
+#save-settings {
+    font-size: 10px;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    padding: 2px;
+    height: 21px;
+    border-style: solid;
+    border-radius: 2px;
+}
+
+/* fixes the filter bringing the co pic forward */
+span[class*="dot_"] {
+    z-index: 1;
+}

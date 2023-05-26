@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "@types/greasemonkey": "^4.0.4",
+    "css-loader": "^6.7.4",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.3",
+    "typescript": "^5.0.4",
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1"
+  },
+  "name": "luni-userscripts",
+  "description": "My publicly available userscripts; hopefully something is helpful to you 🙂",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "build": "webpack --config webpack.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
