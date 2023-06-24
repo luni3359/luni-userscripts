@@ -16,19 +16,18 @@
 // Press K to open the display options. Don't forget to click "Save" to confirm your changes.
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 import { Character } from './character';
-import { Status, charIconRgx, coNameFromKey, coNames } from './officer';
+import { CoKey, Status, charIconRgx, coNameFromKey, coNames } from './officer';
 import { Settings } from './settings';
 import { addGlobalStyle } from './utils';
 import css from './view.css';
 
 function getCOs(iconSelector: string) {
     const iconElements: NodeListOf<HTMLImageElement> = document.querySelectorAll(iconSelector);
-    // const nameElements: NodeListOf<HTMLElement> = document.querySelectorAll(nameSelector);
-
+    
     for (const iconElement of iconElements) {
         const match = iconElement.src.match(charIconRgx);
 
-        if (!match || !match.groups || !coNames.includes(match.groups.character))
+        if (!match?.groups?.character || !coNames.includes(match.groups.character as CoKey))
             continue;
 
         if ("found" in iconElement.dataset || "preview" in iconElement.dataset)
@@ -38,14 +37,10 @@ function getCOs(iconSelector: string) {
 
         characters.push(new Character(iconElement));
     }
-
-    // for (let nameElement of nameElements) {
-    //     characters.push(new Character(null, nameElement));
-    // }
 }
 
 function getCOsSpecial(iconSelector: string, nameSelector: string, parentSelector: string) {
-    const parentElements = document.querySelectorAll(parentSelector);
+    const parentElements: NodeListOf<HTMLTableRowElement> = document.querySelectorAll(parentSelector);
 
     for (const parentElement of parentElements) {
         const iconElement: HTMLImageElement | null = parentElement.querySelector(iconSelector);
@@ -64,21 +59,6 @@ function getCOsSpecial(iconSelector: string, nameSelector: string, parentSelecto
 }
 
 function searchCOs() {
-    const selectors: [string][] = [
-        // https://awbw.amarriner.com/index.php                 // Frontpage
-        ['.do-game-co-image > img[border="1"]'],
-        // https://awbw.amarriner.com/2030.php?games_id=628893  // In match
-        ["a.player-co > img"],
-        // https://awbw.amarriner.com/gamescurrent_all.php      // In current games
-        ["#do-game-player-row > img"],
-        // Catch-all images
-        ['img[src$=".png"]'],
-    ]
-
-    for (const selector of selectors) {
-        getCOs(...selector);
-    }
-
     const specialSelectors: [string, string, string][] = [
         // https://awbw.amarriner.com/co.php                    // CO list
         ["td > a + img", "td > a > b", "table > tbody > tr"],
@@ -87,49 +67,70 @@ function searchCOs() {
     for (const selector of specialSelectors) {
         getCOsSpecial(...selector);
     }
+
+    const selectors: [string][] = [
+        // https://awbw.amarriner.com/index.php                 // Frontpage
+        ['.do-game-co-image > img[border="1"]'],
+        // https://awbw.amarriner.com/2030.php?games_id=628893  // In match, new interface, icons only
+        ["a.player-co > img"],
+        // https://awbw.amarriner.com/gamescurrent_all.php      // In current games
+        ["#do-game-player-row > img"],
+
+        /* new ones */
+        // https://awbw.amarriner.com/game.php?games_id=810030  // old interface, icons only
+        ['img.co_portrait'],
+        ['img.co_portrait_small'],
+    ]
+
+    for (const selector of selectors) {
+        getCOs(...selector);
+    }
 }
 
 
 async function loadPersistentData() {
-    const data = JSON.parse(await GM.getValue("data", "{}"));
+    const data: Record<CoKey, Partial<COSaveData>> = JSON.parse(await GM.getValue("data", "{}"));
 
     if (!settings.window)
         return;
 
     const rows: NodeListOf<HTMLElement> = settings.window.querySelectorAll(".co-row");
     for (const row of rows) {
-        const inputs = row.querySelectorAll("input");
-        const coKey = row.dataset.coKey;
+        const inputFields: NodeListOf<HTMLInputElement> = row.querySelectorAll("input");
+        const coKey = row.dataset.coKey as CoKey | undefined;
 
-        if (!coKey)
-            return;
+        if (!coKey || !Object.hasOwn(data, coKey))
+            continue;
 
-        for (const input of inputs) {
-            input.value = data[coKey][input.name];
+        for (const inputField of inputFields) {
+            const coData = data[coKey];
+            const inputName = inputField.name as keyof COSaveData;
+
+            if (coData[inputName] != undefined)
+                inputField.value = coData[inputName]!;
         }
     }
 
     for (const char of characters) {
-
-        if (!data.hasOwnProperty(char.key))
+        if (!char.key || !Object.hasOwn(data, char.key)) {
+            char.clearAll();
             continue;
-
-        // console.log(`Working with ${char.name}!`);
+        }
 
         const coData = data[char.key];
-        if (coData.alias != "") {
+        if (coData.alias && coData.alias != "") {
             char.setAlias(coData.alias);
         } else {
             char.clearAlias();
         }
 
-        if (coData.customUrl != "") {
+        if (coData.customUrl && coData.customUrl != "") {
             char.setCustomUrl(coData.customUrl);
         } else {
             char.clearCustomUrl();
         }
 
-        if (coData.lostUrl != "") {
+        if (coData.lostUrl && coData.lostUrl != "") {
             char.setLostUrl(coData.lostUrl);
         } else {
             char.clearLostUrl();
@@ -150,28 +151,29 @@ async function savePersistentData() {
     if (!settings.window)
         return;
 
-    const data: { [key: string]: COSaveData } = {};
+    const data: { [key: string]: Partial<COSaveData> } = {};
     const rows: NodeListOf<HTMLElement> = settings.window.querySelectorAll(".co-row");
     for (const row of rows) {
-        const inputs = row.querySelectorAll("input");
-        const coKey = row.dataset.coKey;
+        const inputFields: NodeListOf<HTMLInputElement> = row.querySelectorAll("input");
+        const coKey = row.dataset.coKey as CoKey | undefined;
 
         if (!coKey)
             continue;
 
-        const coData: COSaveData = { alias: "", customUrl: "", lostUrl: "" };
-        for (let j = 0; j < inputs.length; j++) {
-            const input = inputs[j];
-
-            // do not populate the name field if it's saved as the same name
-            if (j == 0 && input.value == coNameFromKey(coKey)) {
-                input.value = "";
-            } else {
-                const field = input.name as keyof COSaveData;
-                coData[field] = input.value;
+        const coData: Partial<COSaveData> = {};
+        for (const inputField of inputFields) {
+            const inputName = inputField.name as keyof COSaveData;
+            if (inputName == 'alias' && inputField.value == coNameFromKey(coKey)) {
+                // do not populate the alias field if the alias is the same as the name
+                inputField.value = "";
+            } else if (inputField.value != "") {
+                coData[inputName] = inputField.value;
             }
         }
-        data[coKey] = coData;
+
+        if (Object.getOwnPropertyNames(coData).length != 0) {
+            data[coKey] = coData;
+        }
     }
 
     await GM.setValue("data", JSON.stringify(data));
@@ -180,7 +182,7 @@ async function savePersistentData() {
 
 const characters: Character[] = [];
 const settings = new Settings();
-let optionKeyPressed = false;
+let isHoldingSettingsKey = false;
 
 function main() {
     addGlobalStyle(css);
@@ -190,10 +192,11 @@ function main() {
 }
 
 window.addEventListener("keydown", e => {
-    if (optionKeyPressed)
+    if (isHoldingSettingsKey)
         return;
 
-    if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey)
+    const isPressingModKey = e.altKey || e.ctrlKey || e.shiftKey || e.metaKey;
+    if (isPressingModKey)
         return;
 
     const isTextArea = e.target instanceof HTMLTextAreaElement;
@@ -204,19 +207,19 @@ window.addEventListener("keydown", e => {
 
     switch (e.code) {
         case "KeyK":
-            optionKeyPressed = true;
+            isHoldingSettingsKey = true;
             settings.toggleWindow();
             break;
     }
 });
 
 window.addEventListener("keyup", e => {
-    if (!optionKeyPressed)
+    if (!isHoldingSettingsKey)
         return;
 
     switch (e.code) {
         case "KeyK":
-            optionKeyPressed = false;
+            isHoldingSettingsKey = false;
             break;
     }
 })

@@ -1,7 +1,7 @@
-import { Status, charIconRgx, coNameFromKey } from './officer';
+import { CoKey, Status, charIconRgx, coNameFromKey } from './officer';
 
 export class Character {
-    key: string;
+    key: CoKey | null;
     name: string;
     icon: string;
     status: Status;
@@ -12,10 +12,10 @@ export class Character {
     lostUrl: string;
 
     iconElement: HTMLImageElement | null;
-    nameElement: HTMLElement | null | undefined;
+    nameElement: HTMLElement | null;
 
-    constructor(iconTag: HTMLImageElement | null, nameTag?: HTMLElement | null | undefined) {
-        this.key = "";
+    constructor(iconTag: HTMLImageElement, nameTag?: HTMLElement) {
+        this.key = null;
         this.name = "";
         this.icon = "";
         this.status = Status.UNDEFINED;
@@ -37,36 +37,36 @@ export class Character {
         }
     }
 
-    setImgElement(element: HTMLImageElement | null) {
+    setImgElement(element: HTMLImageElement) {
         if (!element)
             return;
 
         const match = element.src.match(charIconRgx);
-        if (!match || !match.groups)
+        if (!match?.groups)
             return;
 
         this.iconElement = element;
         this.icon = element.src;
-        this.key = match.groups.character;
+        this.key = match.groups.character as CoKey;
 
         // set the size after identifying it to prevent larger icons from 
         // causing the frame to grow out of proportion
+        let dimension: number;
+
         switch (match.groups.size) {
             case "small":
-                element.height = 24;
-                element.width = 24;
+                dimension = 24;
                 break;
             default:
-                element.height = 32;
-                element.width = 32;
+                dimension = 32;
         }
+
+        element.height = dimension;
+        element.width = dimension
     }
 
-    setNameElement(element: HTMLElement | null | undefined) {
-        if (!element)
-            return;
-
-        if (!element.textContent)
+    setNameElement(element?: HTMLElement) {
+        if (!element?.textContent)
             return;
 
         this.nameElement = element;
@@ -82,12 +82,14 @@ export class Character {
 
         const match = this.iconElement.src.match(charIconRgx);
 
-        if (!match || !match.groups)
+        if (!match?.groups)
             return;
 
-        this.name = coNameFromKey(match.groups.character);
+        const coKey = match.groups.character as CoKey;
+        this.name = coNameFromKey(coKey);
     }
 
+    // TODO: This should only be accessed by the user with a toggle
     displayCustom(turnOn: boolean) {
         this.baseAppearance = turnOn;
         if (turnOn) {
@@ -138,7 +140,7 @@ export class Character {
 
         const match = this.iconElement.src.match(charIconRgx);
 
-        if (!match || !match.groups) {
+        if (!match?.groups) {
             this.status = Status.UNDEFINED;
             return;
         }

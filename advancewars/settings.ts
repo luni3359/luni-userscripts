@@ -101,7 +101,8 @@ export class Settings {
         if (!this.window)
             return;
 
-        if (!("fullyLoaded" in this.window.dataset)) {
+        const hasLoadedAttibute = "fullyLoaded" in this.window.dataset;
+        if (!hasLoadedAttibute) {
             this.loadContent();
         }
 

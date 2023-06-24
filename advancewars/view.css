@@ -91,7 +91,7 @@
 
 .co-defeat {
     background-color: #FFF;
-    filter: brightness(80%);
+    filter: brightness(80%) grayscale(1);
 }
 
 input[type="text"] {
