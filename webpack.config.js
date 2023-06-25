@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   entry: {
-    displayeditor: './advancewars/displayeditor.ts',
+    displayeditor: './advancewars/src/displayeditor.ts',
     hearty: './boorus/hearty.user.js',
   },
   output: {
