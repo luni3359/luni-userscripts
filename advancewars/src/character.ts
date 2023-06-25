@@ -30,7 +30,7 @@ export class Character {
 
         this.setImgElement(iconTag);
         this.setNameElement(nameTag);
-        this.getStatus();
+        this.readStatus();
 
         if (!this.name) {
             this.inferName();
@@ -91,7 +91,7 @@ export class Character {
 
     // TODO: This should only be accessed by the user with a toggle
     displayCustom(turnOn: boolean) {
-        this.baseAppearance = turnOn;
+        this.baseAppearance = !turnOn;
         if (turnOn) {
             if (this.iconElement) {
                 this.iconElement.title = this.name;
@@ -124,6 +124,10 @@ export class Character {
             if (this.iconElement) {
                 this.iconElement.title = "";
                 this.iconElement.src = this.icon;
+
+                if (this.status == Status.LOST) {
+                    this.iconElement.classList.remove("co-defeat");
+                }
             }
 
             if (this.nameElement) {
@@ -132,7 +136,7 @@ export class Character {
         }
     }
 
-    getStatus() {
+    readStatus() {
         if (!this.iconElement) {
             this.status = Status.UNDEFINED;
             return;
