@@ -19,7 +19,7 @@ import { Character } from './character';
 import { CoKey, Status, charIconRgx, coNameFromKey, coNames } from './officer';
 import { Settings } from './settings';
 import { addGlobalStyle } from './utils';
-import css from './view.css';
+import css from './view.scss';
 
 function getCOs(iconSelector: string) {
     const iconElements: NodeListOf<HTMLImageElement> = document.querySelectorAll(iconSelector);
